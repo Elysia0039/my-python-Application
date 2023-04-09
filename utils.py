@@ -69,11 +69,13 @@ class MyApplication(Frame):
         self.hello_label = Label(self, text="Welcome to use my Application!", bg="yellow", fg="red", font=('Times', 20, 'bold italic'))
         self.hello_label.pack(side="top")
         self.quit_button = Button(self, text="Quit", command=self.master.destroy)
-        self.quit_button.pack(side="bottom")
+        self.quit_button.pack(side='bottom')
         self.open_window_button = Button(self, text="use chatGPT", command=self.GPT_window)
         self.open_window_button.pack(side="bottom")
         self.open_window_button2 = Button(self,text="weather",command=self.weather_window)
         self.open_window_button2.pack(side='bottom')
+        self.open_window_button3 = Button(self,text="province&city",command=self.province_window)
+        self.open_window_button3.pack(side='bottom')
 
     def add_text(self, text):
         self.massage_label = Label(self, text=text)
@@ -158,6 +160,7 @@ class MyApplication(Frame):
             fig = plt.figure(figsize=(2, 3), dpi=100)
             plt.plot(days, y_values, label="Highest Temperatures", color='red')
             plt.plot(days, y2_values, label="Lowest Temperatures", color='blue')
+            plt.legend()
             plt.xlabel("X")
             plt.ylabel("Y")
             plt.title("temperaturn today and future")
@@ -195,4 +198,54 @@ class MyApplication(Frame):
         input_box = Text(weather_window, height=1, width=150)
         input_box.pack(side="bottom")
         weather_window.mainloop()
+    def province_window(self):
+        def get_information():
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                              'Chrome/58.0.3029.110 Safari/537.3',
+                'Referer': 'https://www.google.com/',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'en-US,en;q=0.8',
+            }
+            city = input_box.get("1.0", "end-1c")
+            url = 'https://www.mca.gov.cn/article/sj/xzqh/2020/20201201.html'
+            html = urllib.request.urlopen(url)
+            bsObj = BeautifulSoup(html.read(), "html.parser")
+            alphabet = bsObj.find_all("td")
+            id = ""
+            for i in alphabet:
+                if i.text.strip() == city:
+                    print(i.text.strip(), "'s ID is", id)
+                    break
+                else:
+                    id = i.text.strip()
+            output_box.insert(END,"你所查询的区域为：%s\n其区域id是：%s\n"%(city,id))
+            url = "https://zj.v.api.aa1.cn/api/xz/?code=" + id
+
+            response = requests.get(url)
+
+            response_dict = json.loads(response.text)
+            return response_dict
+        def handle_send_button_click():
+            response = get_information()
+            output_box.insert(END,"所属省：%s\n所属市：%s\n所属县：%s\n所属城：%s\n所属村：%s\n区域等级：%s\n"%(response['data']['Province'],response['data']['City'],
+                                                                                                          response['data']['District'],response['data']['Tow'],response['data']['Villag'],response['data']['LevelType']))
+
+        new_windom = Tk()
+        new_windom.title("search for province")
+        new_windom.geometry("800x500")  # 窗口大小为600x800像素
+        welcome_label = Label(new_windom, text="欢迎使用行政区划查询！", font=("Arial", 16))
+        welcome_label.pack(side="top")
+        send_button = Button(new_windom, text="查询", command=handle_send_button_click)
+        send_button.pack(side="bottom")
+        input_box = Text(new_windom, height=1, width=150)
+        input_box.pack(side="bottom")
+        read_label = Label(new_windom, text="请输入完整名称（包括省，市）！", font=("Arial", 16))
+        read_label.pack(side="bottom")
+        output_box = Text(new_windom, height=20, width=100,font=("宋体", 12))
+        output_box.pack(side="top")
+
+
+
+
 
