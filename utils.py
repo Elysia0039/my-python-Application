@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import json
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from tkinter import ttk
 
 class DataProcessor:
     def __init__(self, data_file_path):
@@ -76,6 +77,8 @@ class MyApplication(Frame):
         self.open_window_button2.pack(side='bottom')
         self.open_window_button3 = Button(self,text="province&city",command=self.province_window)
         self.open_window_button3.pack(side='bottom')
+        self.open_window_button4 = Button(self,text='scientist\'s passage',command=self.cel_window)
+        self.open_window_button4.pack(side='bottom')
 
     def add_text(self, text):
         self.massage_label = Label(self, text=text)
@@ -214,22 +217,26 @@ class MyApplication(Frame):
             alphabet = bsObj.find_all("td")
             id = ""
             for i in alphabet:
-                if i.text.strip() == city:
+                if i.text.strip() == city+'省':
                     print(i.text.strip(), "'s ID is", id)
                     break
                 else:
                     id = i.text.strip()
             output_box.insert(END,"你所查询的区域为：%s\n其区域id是：%s\n"%(city,id))
-            url = "https://zj.v.api.aa1.cn/api/xz/?code=" + id
-
-            response = requests.get(url)
+            url = 'https://apis.juhe.cn/fapigw/globalarea/areas'
+            playload = {"province": city, "key": "8405fcc8fb49a699427de721bc8c81e1"}
+            response = requests.get(url,params=playload)
 
             response_dict = json.loads(response.text)
             return response_dict
         def handle_send_button_click():
             response = get_information()
-            output_box.insert(END,"所属省：%s\n所属市：%s\n所属县：%s\n所属城：%s\n所属村：%s\n区域等级：%s\n"%(response['data']['Province'],response['data']['City'],
-                                                                                                          response['data']['District'],response['data']['Tow'],response['data']['Villag'],response['data']['LevelType']))
+            output_box.insert(END,f"country{response['result'][0]['country']}\n")
+            output_box.insert(END, f"province{response['result'][0]['province']}\n")
+            output_box.insert(END,'city:')
+            for i in response['result']:
+                output_box.insert(END,i['city']+',')
+
 
         new_windom = Tk()
         new_windom.title("search for province")
@@ -244,6 +251,48 @@ class MyApplication(Frame):
         read_label.pack(side="bottom")
         output_box = Text(new_windom, height=20, width=100,font=("宋体", 12))
         output_box.pack(side="top")
+    def cel_window(self):
+        def get_url():
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                              'Chrome/58.0.3029.110 Safari/537.3',
+                'Referer': 'https://www.google.com/',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Accept-Language': 'en-US,en;q=0.8',
+            }
+            person = input_box.get("1.0", "end-1c")
+            person = person.replace(' ','%20')
+            url = 'https://dblp.org/search?q='+'Ya-Qin%20Zhang'
+            html = urllib.request.urlopen(url)
+            bsObj = BeautifulSoup(html.read(), "html.parser")
+            alphabet = bsObj.find(attrs={"class": 'result-list'})
+            nn = alphabet.find("a")
+            print(nn.attrs['href'])
+            url = nn.attrs['href']
+            response = requests.get(url,headers=headers)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            output_box.insert(END,f'{person}的所有文章的题目如下:\n')
+            output_box.insert(END,'可以前往:'+url+'查看\n')
+
+            titles = soup.find_all(class_='title')
+            for title in titles:
+                output_box.insert(END,title.text.strip()+'\n')
+
+
+        new_windom = Tk()
+        new_windom.title("search for scientist")
+        new_windom.geometry("900x800")
+        welcome_label = Label(new_windom, text="欢迎科学家查询！", font=("Arial", 16))
+        welcome_label.pack(side="top")
+        send_button = Button(new_windom, text="查询", command=get_url)
+        send_button.pack(side="bottom")
+        input_box = Text(new_windom, height=1, width=150)
+        input_box.pack(side="bottom")
+        read_label = Label(new_windom, text="科学家名称！", font=("Arial", 16))
+        read_label.pack(side="bottom")
+        output_box = Text(new_windom, height=40, width=100, font=("宋体", 12))
+        output_box.pack(side="top")
+
 
 
 
