@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import ttk
 
+
 class DataProcessor:
     def __init__(self, data_file_path):
         self.data_file_path = data_file_path
@@ -67,18 +68,21 @@ class MyApplication(Frame):
         self.master.protocol('WM_DELETE_WINDOW', QueryWindow)
 
     def create_widgets(self):
-        self.hello_label = Label(self, text="Welcome to use my Application!", bg="yellow", fg="red", font=('Times', 20, 'bold italic'))
+        self.hello_label = Label(self, text="Welcome to use my Application!", bg="yellow", fg="red",
+                                 font=('Times', 20, 'bold italic'))
         self.hello_label.pack(side="top")
         self.quit_button = Button(self, text="Quit", command=self.master.destroy)
         self.quit_button.pack(side='bottom')
         self.open_window_button = Button(self, text="use chatGPT", command=self.GPT_window)
         self.open_window_button.pack(side="bottom")
-        self.open_window_button2 = Button(self,text="weather",command=self.weather_window)
+        self.open_window_button2 = Button(self, text="weather", command=self.weather_window)
         self.open_window_button2.pack(side='bottom')
-        self.open_window_button3 = Button(self,text="province&city",command=self.province_window)
+        self.open_window_button3 = Button(self, text="province&city", command=self.province_window)
         self.open_window_button3.pack(side='bottom')
-        self.open_window_button4 = Button(self,text='scientist\'s passage',command=self.cel_window)
+        self.open_window_button4 = Button(self, text='scientist\'s passage', command=self.cel_window)
         self.open_window_button4.pack(side='bottom')
+        self.open_window_button5 = Button(self, text='date of history', command=self.history_window)
+        self.open_window_button5.pack(side='bottom')
 
     def add_text(self, text):
         self.massage_label = Label(self, text=text)
@@ -106,8 +110,8 @@ class MyApplication(Frame):
             input_box.delete("1.0", END)
 
         new_windom1 = Tk()
-        new_windom1 .title("GPT AI")
-        new_windom1 .geometry("1100x900")  # 窗口大小为600x800像素
+        new_windom1.title("GPT AI")
+        new_windom1.geometry("1100x900")  # 窗口大小为600x800像素
         # 标签示例，用于显示欢迎消息和聊天记录
         welcome_label = Label(new_windom1, text="欢迎使用ChatGPT！", font=("Arial", 16))
         welcome_label.pack(side="top")
@@ -120,6 +124,7 @@ class MyApplication(Frame):
         output_box.pack(side="top")
         assest_label = Label(new_windom1, text="请在这里提出问题", font=("Arial", 16))
         assest_label.pack(side="left")
+
     def weather_window(self):
         # 创建 tkinter 窗口
         temperature_min = []
@@ -201,6 +206,7 @@ class MyApplication(Frame):
         input_box = Text(weather_window, height=1, width=150)
         input_box.pack(side="bottom")
         weather_window.mainloop()
+
     def province_window(self):
         def get_information():
             headers = {
@@ -217,26 +223,26 @@ class MyApplication(Frame):
             alphabet = bsObj.find_all("td")
             id = ""
             for i in alphabet:
-                if i.text.strip() == city+'省':
+                if i.text.strip() == city + '省':
                     print(i.text.strip(), "'s ID is", id)
                     break
                 else:
                     id = i.text.strip()
-            output_box.insert(END,"你所查询的区域为：%s\n其区域id是：%s\n"%(city,id))
+            output_box.insert(END, "你所查询的区域为：%s\n其区域id是：%s\n" % (city, id))
             url = 'https://apis.juhe.cn/fapigw/globalarea/areas'
             playload = {"province": city, "key": "8405fcc8fb49a699427de721bc8c81e1"}
-            response = requests.get(url,params=playload)
+            response = requests.get(url, params=playload)
 
             response_dict = json.loads(response.text)
             return response_dict
+
         def handle_send_button_click():
             response = get_information()
-            output_box.insert(END,f"country{response['result'][0]['country']}\n")
+            output_box.insert(END, f"country{response['result'][0]['country']}\n")
             output_box.insert(END, f"province{response['result'][0]['province']}\n")
-            output_box.insert(END,'city:')
+            output_box.insert(END, 'city:')
             for i in response['result']:
-                output_box.insert(END,i['city']+',')
-
+                output_box.insert(END, i['city'] + ',')
 
         new_windom = Tk()
         new_windom.title("search for province")
@@ -247,10 +253,11 @@ class MyApplication(Frame):
         send_button.pack(side="bottom")
         input_box = Text(new_windom, height=1, width=150)
         input_box.pack(side="bottom")
-        read_label = Label(new_windom, text="请输入完整名称（包括省，市）！", font=("Arial", 16))
+        read_label = Label(new_windom, text="请输入省份完整名称！", font=("Arial", 16))
         read_label.pack(side="bottom")
-        output_box = Text(new_windom, height=20, width=100,font=("宋体", 12))
+        output_box = Text(new_windom, height=20, width=100, font=("宋体", 12))
         output_box.pack(side="top")
+
     def cel_window(self):
         def get_url():
             headers = {
@@ -261,23 +268,22 @@ class MyApplication(Frame):
                 'Accept-Language': 'en-US,en;q=0.8',
             }
             person = input_box.get("1.0", "end-1c")
-            person = person.replace(' ','%20')
-            url = 'https://dblp.org/search?q='+'Ya-Qin%20Zhang'
+            person = person.replace(' ', '%20')
+            url = 'https://dblp.org/search?q='
             html = urllib.request.urlopen(url)
             bsObj = BeautifulSoup(html.read(), "html.parser")
             alphabet = bsObj.find(attrs={"class": 'result-list'})
             nn = alphabet.find("a")
             print(nn.attrs['href'])
             url = nn.attrs['href']
-            response = requests.get(url,headers=headers)
+            response = requests.get(url, headers=headers)
             soup = BeautifulSoup(response.text, 'html.parser')
-            output_box.insert(END,f'{person}的所有文章的题目如下:\n')
-            output_box.insert(END,'可以前往:'+url+'查看\n')
+            output_box.insert(END, f'{person}的所有文章的题目如下:\n')
+            output_box.insert(END, '可以前往:' + url + '查看\n')
 
             titles = soup.find_all(class_='title')
             for title in titles:
-                output_box.insert(END,title.text.strip()+'\n')
-
+                output_box.insert(END, title.text.strip() + '\n')
 
         new_windom = Tk()
         new_windom.title("search for scientist")
@@ -293,8 +299,51 @@ class MyApplication(Frame):
         output_box = Text(new_windom, height=40, width=100, font=("宋体", 12))
         output_box.pack(side="top")
 
+    def history_window(self):
 
+        new_windoms = Tk()
+        new_windoms.geometry("400x300")
+        new_windoms.title("search for the date in history")
+        welcome_label = Label(new_windoms, text="查询历史上的这一天发生了什么大事", font=("Arial", 16))
+        welcome_label.pack(side="top")
+        mouth_var = StringVar()
+        mouth_choices = [str(year) for year in range(1, 13)]
+        mouth_dropdown = ttk.Combobox(new_windoms, textvariable=mouth_var, values=mouth_choices)
+        date_var = StringVar()
+        date_choices = [str(year) for year in range(1, 32)]
+        day_dropdown = ttk.Combobox(new_windoms, textvariable=date_var, values=date_choices)
+        mouth_dropdown.pack(pady=10)
+        mouth_label = Label(new_windoms, text='月', font=("Arial", 14))
+        mouth_label.pack(padx=10)
+        day_dropdown.pack(pady=10)
+        day_label = Label(new_windoms, text='日', font=("Arial", 14))
+        day_label.pack(padx=10)
 
+        def submit():
+            m = mouth_dropdown.get()
+            d = day_dropdown.get()
+            print(m, d)
+            result = m + '/' + d
+            print(result)
+            url = 'http://v.juhe.cn/todayOnhistory/queryEvent.php'
+            playload = {'key': '4e672e3a35f5dd2eeb9f7877451a62ad', 'date': result}
+            response = requests.get(url, params=playload)
+            response_dict = json.loads(response.text)
+            print(response_dict)
+            # Create a Tkinter window
+            root = Tk()
+            root.title("things happened on "+result)
+            # Define columns for the table
+            columns = ('date', 'happening', 'e_id')
+            tree = ttk.Treeview(root, columns=columns, show='headings')
+            # Define column headings
+            tree.heading('date', text='date')
+            tree.heading('happening', text='happening')
+            tree.heading('e_id', text='e_id')
+            for i in response_dict['result']:
+                tree.insert('', '0', values=(i['date'], i['title'], i['e_id']))
+                print(i)
+            tree.pack()
 
-
-
+        button = Button(new_windoms, text="Submit", command=submit)
+        button.pack(pady=10)
