@@ -11,7 +11,7 @@ root = Tk()
 
 # 创建应用程序对象
 app = MyApplication(master=root)
-app.add_text("this is my application")
+app.add_text("there are 4 functions available")
 
 # 进入主循环
 app.mainloop()

@@ -111,13 +111,13 @@ class MyApplication(Frame):
 
         new_windom1 = Tk()
         new_windom1.title("GPT AI")
-        new_windom1.geometry("1100x900")  # 窗口大小为600x800像素
-        # 标签示例，用于显示欢迎消息和聊天记录
+        new_windom1.geometry("1100x900")  # the size of window is 600x800
+        # a label to show welcome
         welcome_label = Label(new_windom1, text="欢迎使用ChatGPT！", font=("Arial", 16))
         welcome_label.pack(side="top")
         send_button = Button(new_windom1, text="发送", command=handle_send_button_click)
         send_button.pack(side="bottom")
-        # 文本框示例，用于输入用户问题
+        # a textbox to let user input questions
         input_box = Text(new_windom1, height=4, width=150)
         input_box.pack(side="bottom")
         output_box = Text(new_windom1, height=50, width=150)
@@ -269,7 +269,7 @@ class MyApplication(Frame):
             }
             person = input_box.get("1.0", "end-1c")
             person = person.replace(' ', '%20')
-            url = 'https://dblp.org/search?q='
+            url = 'https://dblp.org/search?q='+person
             html = urllib.request.urlopen(url)
             bsObj = BeautifulSoup(html.read(), "html.parser")
             alphabet = bsObj.find(attrs={"class": 'result-list'})
